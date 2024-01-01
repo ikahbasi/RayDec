@@ -25,3 +25,13 @@ def zero_crossing(trace, slop=2):
     sings_changing = np.diff(sings)
     sings_changing_location = np.where(sings_changing==slop)[0]
     return sings_changing_location / sps
+
+
+def window_length(freq, sps, cycles=10):
+    '''
+    Description {}
+    '''
+    delta = 1 / sps
+    seconds = cycles / freq
+    samples = seconds / delta
+    return seconds, int(samples)
