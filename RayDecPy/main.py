@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from math import sin, cos
 from obspy import Trace
 
-def zero_crossing(trace, slop=2):
+def ZeroCrossing(trace, slop=2):
     '''
     Description {}
 
@@ -27,7 +27,7 @@ def zero_crossing(trace, slop=2):
     return sings_changing_location / sps
 
 
-def window_length(freq, sps, cycles=10):
+def WindowLength(freq, sps, cycles=10):
     '''
     Description {}
     '''
@@ -37,9 +37,10 @@ def window_length(freq, sps, cycles=10):
     return seconds, int(samples)
 
 
-def Normalized_Correlation(sig1, sig2):
+def NormalizedCorrelation(sig1, sig2):
     '''
     EQ.5
+    Description {}
     '''
     numerator = sum(sig1*sig2)
     denominator = np.sqrt(sum(sig1*sig1)*sum(sig2*sig2))
