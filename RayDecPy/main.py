@@ -37,6 +37,20 @@ def WindowLength(freq, sps, cycles=10):
     return seconds, int(samples)
 
 
+def Theta(tr_v, tr_e, tr_n):
+    '''
+    EQ.4
+    Description {}
+    '''
+    integral1 = sum(tr_v.data*tr_e.data)
+    integral2 = sum(tr_v.data*tr_n.data)
+    theta = np.arctan(integral1/integral2)   
+    if integral2<0:
+        theta = theta + np.pi
+    theta = np.mod(theta+np.pi, 2*np.pi)
+    return theta
+
+
 def NormalizedCorrelation(sig1, sig2):
     '''
     EQ.5
