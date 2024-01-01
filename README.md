@@ -16,7 +16,7 @@ This gives the ellipticity in a logarithmic scale and the error factor.
 ellipticity_mean .* ellipticity_error and ellipticity_mean ./ ellipticity_error are then the +/- 1 standard deviation ellipticity values. 
 It is best to save a file with [fl, ellipticity_mean, ellipticity_error].
 
-Usage in dinver
+Usage in dinver:
 The ellipticity value and error factor obtained in the way presented above can be loaded in dinver (included in the geopsy package, http://www.geopsy.org/) and be inverted for the velocity profile of the underground. To read the file saved above in a correct way, use "Ellipticity (H/V)" for the second column and "log(H/V) stddev (approx.)" for the third column. The factor has to be set to "-1" for the second and third columns to attribute them to retrograde particle motion and stay "+1" for prograde particle motion. The fundamental mode of Rayleigh waves is always retrograde at low and high frequencies, but can be prograde in the intermediate range if a strong velocity contrast exists in the subsurface.
 
 Be aware that an ellipticity curve alone is not sufficient to retrieve the velocity profile without additional constraints (e.g. Love/Rayleigh wave dispersion curves, interface depths, constraints on the velocities of certain layers)!
