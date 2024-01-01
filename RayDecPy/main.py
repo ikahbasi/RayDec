@@ -35,3 +35,13 @@ def window_length(freq, sps, cycles=10):
     seconds = cycles / freq
     samples = seconds / delta
     return seconds, int(samples)
+
+
+def Normalized_Correlation(sig1, sig2):
+    '''
+    EQ.5
+    '''
+    numerator = sum(sig1*sig2)
+    denominator = np.sqrt(sum(sig1*sig1)*sum(sig2*sig2))
+    corr = numerator / denominator
+    return corr
