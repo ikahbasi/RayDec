@@ -63,8 +63,10 @@ def NormalizedCorrelation(sig1, sig2):
     return corr
 
 
-# Checked
 def FilterChebyshev(st, f, dfpar, fstart, cycles):
+    '''
+    Docstring {}
+    '''
     st2 = st.copy()
     tr_v = st2.select(channel='*[Z1]')[0]
     tr_n = st2.select(channel='*[N2]')[0]
@@ -92,3 +94,13 @@ def FilterChebyshev(st, f, dfpar, fstart, cycles):
     tr_n.data = norths
     tr_e.data = easts
     return st2
+
+
+def Shifting_HvsV(freq, sps):
+    '''
+    Docstring {}
+    '''
+    delta = 1 / sps
+    shift_sample = math.floor(1/(4*freq*delta))
+    shift_second = shift_sample / sps
+    return shift_sample, shift_second
