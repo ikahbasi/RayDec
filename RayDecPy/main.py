@@ -157,3 +157,40 @@ def Ellipticity(vert, radial):
     '''
     result = np.sum(radial**2) / np.sum(vert**2)
     return np.sqrt(result)
+
+
+def Raydec_on1station(st, fmin, fmax, fsteps, cycles, dfpar):
+    '''
+    Docstring {}
+    '''
+    tr = st[0]
+    sps = tr.stats.sampling_rate
+    dt_max = 30
+    fnyq = sps / 2
+    fstart = max(fmin, 1/dt_max)
+    fend = min(fmax, fnyq)
+    constlog = (fend/fstart) ** (1/(fsteps-1))
+    fl = fstart*constlog ** np.arange(fsteps)
+    el = np.zeros(fsteps)
+    for ii in range(fsteps):
+        st_filtered = FilterChebyshev(st,
+                                      f=fl[ii], dfpar=dfpar, fstart=fstart,
+                                      cycles=cycles)
+        length, _ = WindowLength(freq=fl[ii], sps=sps, cycles=cycles)
+        lst_v, lst_n, lst_e = Windowing(st_filtered, length=length, freq=fl[ii])
+        ###
+        stack_v = []
+        stack_h = []
+        for v, n, e in zip(lst_v, lst_n, lst_e):
+            # print(v.stats.npts, n.stats.npts, e.stats.npts)
+            theta = Theta(tr_v=v, tr_e=e, tr_n=n)
+            # print(theta)
+            h = Horizental2Radial(tr_e=e, tr_n=n, theta=theta)
+            correlation = NormalizedCorrelation(sig1=v.data, sig2=h.data)
+            stack_v.append(v.data*correlation**2)
+            stack_h.append(h.data*correlation**2)
+        stack_v = np.sum(stack_v, axis=0)
+        stack_h = np.sum(stack_h, axis=0)
+        elipt = Ellipticity(vert=stack_v, radial=stack_h)
+        el[ii] = elipt
+    return fl, el
