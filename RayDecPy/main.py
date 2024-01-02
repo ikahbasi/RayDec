@@ -1,10 +1,7 @@
-from obspy import read
-import numpy as np
-import math
-import scipy
-import matplotlib.pyplot as plt
-from math import sin, cos
+from math import sin, cos, floor
 from obspy import Trace
+import numpy as np
+import scipy
 
 
 def ZeroCrossing(trace, slop=2):
@@ -101,7 +98,7 @@ def Shifting_HvsV(freq, sps):
     Docstring {}
     '''
     delta = 1 / sps
-    shift_sample = math.floor(1/(4*freq*delta))
+    shift_sample = floor(1/(4*freq*delta))
     shift_second = shift_sample / sps
     return shift_sample, shift_second
 
@@ -143,7 +140,7 @@ def Horizental2Radial(tr_e, tr_n, theta):
     '''
     Docstring {}
     '''
-    radial = sin(theta)*tr_e.data + cos(theta)*tr_n.data
+    radial = sin(theta) * tr_e.data + cos(theta) * tr_n.data
     #
     stats = tr_e.stats.__dict__
     stats['channel'] = 'rad'
@@ -173,18 +170,22 @@ def Raydec_on1station(st, fmin, fmax, fsteps, cycles, dfpar):
     fl = fstart*constlog ** np.arange(fsteps)
     el = np.zeros(fsteps)
     for ii in range(fsteps):
-        st_filtered = FilterChebyshev(st,
-                                      f=fl[ii], dfpar=dfpar, fstart=fstart,
+        st_filtered = FilterChebyshev(st=st,
+                                      f=fl[ii],
+                                      dfpar=dfpar,
+                                      fstart=fstart,
                                       cycles=cycles)
-        length, _ = WindowLength(freq=fl[ii], sps=sps, cycles=cycles)
-        lst_v, lst_n, lst_e = Windowing(st_filtered, length=length, freq=fl[ii])
+        length, _ = WindowLength(freq=fl[ii],
+                                 sps=sps,
+                                 cycles=cycles)
+        lst_v, lst_n, lst_e = Windowing(st=st_filtered,
+                                        length=length,
+                                        freq=fl[ii])
         ###
         stack_v = []
         stack_h = []
         for v, n, e in zip(lst_v, lst_n, lst_e):
-            # print(v.stats.npts, n.stats.npts, e.stats.npts)
             theta = Theta(tr_v=v, tr_e=e, tr_n=n)
-            # print(theta)
             h = Horizental2Radial(tr_e=e, tr_n=n, theta=theta)
             correlation = NormalizedCorrelation(sig1=v.data, sig2=h.data)
             stack_v.append(v.data*correlation**2)
