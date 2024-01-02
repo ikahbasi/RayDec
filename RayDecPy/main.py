@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from math import sin, cos
 from obspy import Trace
 
+
 def ZeroCrossing(trace, slop=2):
     '''
     Description {}
@@ -23,7 +24,7 @@ def ZeroCrossing(trace, slop=2):
     ###
     sings = np.sign(data)
     sings_changing = np.diff(sings)
-    sings_changing_location = np.where(sings_changing==slop)[0]
+    sings_changing_location = np.where(sings_changing == slop)[0]
     return sings_changing_location / sps
 
 
@@ -44,8 +45,8 @@ def Theta(tr_v, tr_e, tr_n):
     '''
     integral1 = sum(tr_v.data*tr_e.data)
     integral2 = sum(tr_v.data*tr_n.data)
-    theta = np.arctan(integral1/integral2)   
-    if integral2<0:
+    theta = np.arctan(integral1/integral2)
+    if integral2 < 0:
         theta = theta + np.pi
     theta = np.mod(theta+np.pi, 2*np.pi)
     return theta
@@ -60,3 +61,34 @@ def NormalizedCorrelation(sig1, sig2):
     denominator = np.sqrt(sum(sig1*sig1)*sum(sig2*sig2))
     corr = numerator / denominator
     return corr
+
+
+# Checked
+def FilterChebyshev(st, f, dfpar, fstart, cycles):
+    st2 = st.copy()
+    tr_v = st2.select(channel='*[Z1]')[0]
+    tr_n = st2.select(channel='*[N2]')[0]
+    tr_e = st2.select(channel='*[E3]')[0]
+    #
+    DT = cycles / f
+    wl = round(DT/tr_v.stats.delta)
+    fnyq = tr_v.stats.sampling_rate / 2
+    df = dfpar * f
+    fmin = max(fstart, f-df/2)
+    fmax = min(fnyq, f+df/2)
+    #
+    wp = np.array([fmin+(fmax-fmin)/20, fmax-(fmax-fmin)/20]) / fnyq
+    ws = np.array([fmin-(fmax-fmin)/20, fmax+(fmax-fmin)/20]) / fnyq
+    #
+    na, wn = scipy.signal.cheb1ord(
+        wp=wp, ws=ws, gpass=1, gstop=5, analog=False, fs=None)
+    ch1, ch2 = scipy.signal.cheby1(na, 0.5, wn, btype='bandpass')
+    #
+    norths = scipy.signal.lfilter(ch1, ch2, tr_n.data)
+    easts = scipy.signal.lfilter(ch1, ch2, tr_e.data)
+    verts = scipy.signal.lfilter(ch1, ch2, tr_v.data)
+    #
+    tr_v.data = verts
+    tr_n.data = norths
+    tr_e.data = easts
+    return st2
