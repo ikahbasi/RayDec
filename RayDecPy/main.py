@@ -149,3 +149,11 @@ def Horizental2Radial(tr_e, tr_n, theta):
     stats['channel'] = 'rad'
     tr = Trace(radial, header=stats)
     return tr
+
+
+def Ellipticity(vert, radial):
+    '''
+    Docstring {}
+    '''
+    result = np.sum(radial**2) / np.sum(vert**2)
+    return np.sqrt(result)
