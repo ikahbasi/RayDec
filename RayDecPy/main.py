@@ -104,3 +104,36 @@ def Shifting_HvsV(freq, sps):
     shift_sample = math.floor(1/(4*freq*delta))
     shift_second = shift_sample / sps
     return shift_sample, shift_second
+
+
+def Windowing(st, length, freq):
+    '''
+    Docstring {}
+    '''
+    tr_v = st.select(channel='*[Z1]')[0]
+    tr_n = st.select(channel='*[N2]')[0]
+    tr_e = st.select(channel='*[E3]')[0]
+    ###
+    tr_time_duration = tr_v.stats.npts / tr_v.stats.sampling_rate
+    zcrossing = ZeroCrossing(trace=tr_v, slop=2)
+    zcrossing = zcrossing[
+        np.where(zcrossing <= tr_time_duration-length)
+        ]
+    _, shift_second = Shifting_HvsV(freq, tr_v.stats.sampling_rate)
+    ###
+    lst_tr_v = []
+    lst_tr_n = []
+    lst_tr_e = []
+    for stime in zcrossing:
+        stime = tr_v.stats.starttime + stime
+        v_trim = tr_v.slice(starttime=stime, endtime=stime+length)
+        stime = stime - shift_second
+        n_trim = tr_n.slice(starttime=stime, endtime=stime+length)
+        e_trim = tr_e.slice(starttime=stime, endtime=stime+length)
+        if e_trim.stats.npts != v_trim.stats.npts:
+            break
+        ###
+        lst_tr_v.append(v_trim)
+        lst_tr_n.append(n_trim)
+        lst_tr_e.append(e_trim)
+    return lst_tr_v, lst_tr_n, lst_tr_e
