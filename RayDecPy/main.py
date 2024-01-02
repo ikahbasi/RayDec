@@ -137,3 +137,15 @@ def Windowing(st, length, freq):
         lst_tr_n.append(n_trim)
         lst_tr_e.append(e_trim)
     return lst_tr_v, lst_tr_n, lst_tr_e
+
+
+def Horizental2Radial(tr_e, tr_n, theta):
+    '''
+    Docstring {}
+    '''
+    radial = sin(theta)*tr_e.data + cos(theta)*tr_n.data
+    #
+    stats = tr_e.stats.__dict__
+    stats['channel'] = 'rad'
+    tr = Trace(radial, header=stats)
+    return tr
